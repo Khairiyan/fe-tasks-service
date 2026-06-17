@@ -1,36 +1,95 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Kanggo FE — Task Management
 
-## Getting Started
+Aplikasi frontend manajemen tugas (task management) dengan autentikasi, dibangun dengan [Next.js](https://nextjs.org) (App Router), React 19, Tailwind CSS v4, dan TanStack React Query.
 
-First, run the development server:
+## Fitur
+
+- **Autentikasi** — registrasi & login (JWT disimpan di `localStorage`), dengan auto-logout saat token kedaluwarsa (HTTP 401).
+- **Dashboard terproteksi** — hanya bisa diakses setelah login (lihat `components/ProtectedRoute.tsx`).
+- **CRUD tugas** — buat, lihat, ubah, dan hapus tugas lewat modal form (`components/TaskFormModal.tsx`).
+- **Pagination, filter status, & pencarian** pada daftar tugas.
+- **Data fetching & caching** dengan TanStack React Query.
+
+## Teknologi
+
+- Next.js 16 (App Router) + React 19
+- Tailwind CSS v4
+- TanStack React Query v5
+- Vitest + Testing Library untuk pengujian
+- Docker / Docker Compose untuk deployment
+
+## Memulai
+
+Install dependency lalu jalankan dev server:
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Aplikasi berjalan di [http://localhost:3001](http://localhost:3001).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Konfigurasi Environment
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Buat file `.env.local` di root proyek:
 
-## Learn More
+```bash
+# Base URL backend REST API (tanpa trailing slash).
+# Default: http://localhost:3001/api
+NEXT_PUBLIC_API_BASE_URL=http://localhost:3001/api
+```
 
-To learn more about Next.js, take a look at the following resources:
+Aplikasi memanggil backend pada endpoint:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- `POST /auth/register`, `POST /auth/login`
+- `GET /tasks`, `POST /tasks`, `PUT /tasks/:id`, `DELETE /tasks/:id`
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Skrip
 
-## Deploy on Vercel
+| Perintah        | Keterangan                          |
+| --------------- | ----------------------------------- |
+| `npm run dev`   | Jalankan dev server (port 3001)     |
+| `npm run build` | Build untuk produksi                |
+| `npm run start` | Jalankan hasil build produksi       |
+| `npm run lint`  | Jalankan ESLint                     |
+| `npm run test`  | Jalankan unit test dengan Vitest    |
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Pengujian
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+npm run test
+```
+
+Konfigurasi pengujian ada di `vitest.config.ts` dan `vitest.setup.ts`.
+
+## Docker
+
+Build & jalankan dengan Docker Compose:
+
+```bash
+docker compose up --build
+```
+
+Frontend dapat diakses di [http://localhost:3002](http://localhost:3002) (port host `3002` dipetakan ke port container `3001`).
+
+Variabel `NEXT_PUBLIC_*` di-_bake_ saat build time, jadi atur `NEXT_PUBLIC_API_BASE_URL` sebelum build jika backend tidak berada di default.
+
+## Struktur Proyek
+
+```
+app/
+  login/          Halaman login
+  register/       Halaman registrasi
+  dashboard/      Dashboard terproteksi (daftar & kelola tugas)
+components/
+  ProtectedRoute.tsx   Guard rute terproteksi
+  TaskFormModal.tsx    Modal create/edit tugas
+  ui.tsx               Komponen UI dasar
+lib/
+  api.ts          Fetch wrapper + manajemen token
+  auth-api.ts     Endpoint autentikasi
+  tasks-api.ts    Endpoint tugas
+  auth-context.tsx     Context autentikasi
+  providers.tsx        Provider React Query
+  types.ts             Tipe bersama
+```
