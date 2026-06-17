@@ -1,0 +1,19 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        # NEXT_PUBLIC_* are baked in at build time.
+        NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL:-http://localhost:3001/api}
+        NEXT_PUBLIC_TOKEN_KEY: ${NEXT_PUBLIC_TOKEN_KEY:-kanggo_token}
+    image: kanggo-fe:latest
+    container_name: kanggo-fe
+    restart: unless-stopped
+    ports:
+      # host:container -> FE reachable at http://localhost:3002
+      - "3002:3001"
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      HOSTNAME: 0.0.0.0
